@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Sucursal {
+  id        String   @id @default(cuid())
+  nombre    String   @unique
+  direccion String?
+  telefono  String?
+  activa    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  usuarios      Usuario[]
+  planCuentas   PlanCuenta[]
+  tasasCambio   TasaCambio[]
+  operaciones   OperacionDiaria[]
+  posMovimientos POSMovimiento[]
+  egresos       Egreso[]
+  ingresos      IngresoExtra[]
+  prestamos     Prestamo[]
+  cuadres       CuadreCaja[]
+  productos     Producto[]
+  movimientosStock MovimientoStock[]
+
+  @@map("sucursales")
+}
+
+model Usuario {
+  id             String   @id @default(cuid())
+  nombre         String
+  email          String   @unique
+  passwordHash   String   @map("password_hash")
+  rol            String   @default("ENCARGADO")
+  activo         Boolean  @default(true)
+  sucursalId     String?  @map("sucursal_id")
+  sucursal       Sucursal? @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("usuarios")
+}
+
+model PlanCuenta {
+  id             String   @id @default(cuid())
+  codigo         String
+  descripcion    String
+  cuentaAgrupada String?  @map("cuenta_agrupada")
+  tipo           String?
+  sucursalId     String   @map("sucursal_id")
+  sucursal       Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([codigo, sucursalId])
+  @@map("plan_cuentas")
+}
+
+model TasaCambio {
+  id        String   @id @default(cuid())
+  fecha     DateTime
+  tasa      Float
+  sucursalId String  @map("sucursal_id")
+  sucursal  Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([fecha, sucursalId])
+  @@map("tasas_cambio")
+}
+
+model OperacionDiaria {
+  id           String   @id @default(cuid())
+  fecha        DateTime
+  tipoJuego    String   @map("tipo_juego")
+  moneda       String   @default("USD")
+  ventas       Float    @default(0)
+  pagos        Float    @default(0)
+  reintegros   Float    @default(0)
+  comision     Float    @default(0)
+  saldo        Float    @default(0)
+  observacion  String?
+  sucursalId   String   @map("sucursal_id")
+  sucursal     Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([fecha, tipoJuego, moneda, sucursalId])
+  @@map("operaciones_diarias")
+}
+
+model POSMovimiento {
+  id             String   @id @default(cuid())
+  fecha          DateTime
+  tipoPos        String   @map("tipo_pos")
+  debito         Float    @default(0)
+  credito        Float    @default(0)
+  alimentacion   Float    @default(0)
+  descuentoTD    Float    @map("descuento_td")
+  descuentoTDC   Float    @map("descuento_tdc")
+  descuentoAlim  Float    @map("descuento_alim")
+  sucursalId     String   @map("sucursal_id")
+  sucursal       Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([fecha, tipoPos, sucursalId])
+  @@map("pos_movimientos")
+}
+
+model Egreso {
+  id             String   @id @default(cuid())
+  fecha          DateTime
+  categoria      String
+  codigoCuenta   String?  @map("codigo_cuenta")
+  descripcion    String
+  monto          Float
+  sucursalId     String   @map("sucursal_id")
+  sucursal       Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("egresos")
+}
+
+model IngresoExtra {
+  id             String   @id @default(cuid())
+  fecha          DateTime
+  descripcion    String
+  monto          Float
+  sucursalId     String   @map("sucursal_id")
+  sucursal       Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("ingresos_extra")
+}
+
+model Prestamo {
+  id             String   @id @default(cuid())
+  fecha          DateTime
+  descripcion    String?
+  monto          Float
+  sucursalId     String   @map("sucursal_id")
+  sucursal       Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("prestamos")
+}
+
+model CuadreCaja {
+  id             String   @id @default(cuid())
+  fecha          DateTime
+  fondoInicial   Float    @default(0) @map("fondo_inicial")
+  ingresosTotal  Float    @default(0) @map("ingresos_total")
+  salidasTotal   Float    @default(0) @map("salidas_total")
+  totalCaja      Float    @default(0) @map("total_caja")
+  sucursalId     String   @map("sucursal_id")
+  sucursal       Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([fecha, sucursalId])
+  @@map("cuadres_caja")
+}
+
+model Producto {
+  id             String              @id @default(cuid())
+  nombre         String
+  precioUSD      Float               @default(0) @map("precio_usd")
+  precioBS       Float               @default(0) @map("precio_bs")
+  stockMinimo    Int                 @default(0) @map("stock_minimo")
+  categoria      String              @default("OTROS")
+  sucursalId     String              @map("sucursal_id")
+  sucursal       Sucursal            @relation(fields: [sucursalId], references: [id])
+  movimientos    MovimientoStock[]
+  activo         Boolean             @default(true)
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+
+  @@unique([nombre, sucursalId])
+  @@map("productos")
+}
+
+model MovimientoStock {
+  id             String   @id @default(cuid())
+  fecha          DateTime
+  productoId     String   @map("producto_id")
+  producto       Producto @relation(fields: [productoId], references: [id])
+  tipo           String
+  cantidad       Int
+  stockAnterior  Int      @map("stock_anterior")
+  stockNuevo     Int      @map("stock_nuevo")
+  observacion    String?
+  sucursalId     String   @map("sucursal_id")
+  sucursal       Sucursal @relation(fields: [sucursalId], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("movimientos_stock")
+}
