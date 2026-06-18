@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate && node -e \"const f=require('fs'),p=require('path'),d=p.join(require.resolve('@prisma/client'),'../../../.prisma/client');f.readdirSync(d).filter(x=>x.endsWith('.node')).forEach(x=>f.rmSync(p.join(d,x),{force:true}))\""
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
