@@ -18,24 +18,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = credentials.email as string;
         const password = credentials.password as string;
 
-        const user = await prisma.usuario.findUnique({
-          where: { email },
-          include: { sucursal: true },
-        });
+        try {
+          const user = await prisma.usuario.findUnique({
+            where: { email },
+            include: { sucursal: true },
+          });
 
-        if (!user || !user.activo) return null;
+          if (!user || !user.activo) return null;
 
-        const passwordMatch = await bcrypt.compare(password, user.passwordHash);
-        if (!passwordMatch) return null;
+          const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+          if (!passwordMatch) return null;
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.nombre,
-          rol: user.rol,
-          sucursalId: user.sucursalId,
-          sucursalNombre: user.sucursal?.nombre ?? null,
-        };
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.nombre,
+            rol: user.rol,
+            sucursalId: user.sucursalId,
+            sucursalNombre: user.sucursal?.nombre ?? null,
+          };
+        } catch (error) {
+          console.error("authorize error:", error);
+          return null;
+        }
       },
     }),
   ],
