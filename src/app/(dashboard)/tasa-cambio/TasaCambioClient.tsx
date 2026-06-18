@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useRefreshTasa } from "@/lib/currency-context";
 
 type Tasa = {
   id: string;
@@ -23,11 +24,13 @@ export default function TasaCambioClient({
   userSucursalId: string;
 }) {
   const router = useRouter();
+  const refreshTasa = useRefreshTasa();
   const [tasas, setTasas] = useState(initial);
   const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
   const [tasa, setTasa] = useState("");
   const [loading, setLoading] = useState(false);
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);
+  const [error, setError] = useState("");
 
   const loadTasas = useCallback(async () => {
     const params = new URLSearchParams();
@@ -39,6 +42,7 @@ export default function TasaCambioClient({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     const res = await fetch("/api/tasa-cambio", {
       method: "POST",
@@ -50,6 +54,10 @@ export default function TasaCambioClient({
       setTasa("");
       loadTasas();
       router.refresh();
+      refreshTasa();
+    } else {
+      const data = await res.json();
+      setError(data.error || "Error al guardar tasa");
     }
     setLoading(false);
   }
@@ -97,6 +105,8 @@ export default function TasaCambioClient({
           {loading ? "Guardando..." : "Guardar Tasa"}
         </button>
       </form>
+
+      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
 
       <div className="bg-white rounded-xl border overflow-hidden">
         <table className="w-full text-sm">

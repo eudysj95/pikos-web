@@ -30,16 +30,19 @@ export default function ReportesClient({ sucursales, isGerente, userSucursalId }
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);
   const [resumen, setResumen] = useState<Resumen | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const tasa = useTasa();
 
   function setRango(d: string, h: string) { setDesde(d); setHasta(h); }
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError("");
     const params = new URLSearchParams({ desde, hasta });
     if (sucursalFiltro) params.set("sucursalId", sucursalFiltro);
     const res = await globalThis.fetch(`/api/reportes?${params}`);
     if (res.ok) setResumen(await res.json());
+    else { const data = await res.json(); setError(data.error || "Error al generar reporte"); }
     setLoading(false);
   }, [desde, hasta, sucursalFiltro]);
 
@@ -67,6 +70,8 @@ export default function ReportesClient({ sucursales, isGerente, userSucursalId }
         <button onClick={load} disabled={loading}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm disabled:opacity-50">{loading ? "Cargando..." : "Generar Reporte"}</button>
       </div>
+
+      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
 
       {resumen && (
         <div className="space-y-6">

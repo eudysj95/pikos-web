@@ -50,13 +50,18 @@ export default function OperacionesClient({
   });
   const [editing, setEditing] = useState<Operacion | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [error, setError] = useState("");
 
   const fetchOperaciones = useCallback(async () => {
+    setError("");
     const params = new URLSearchParams({ fecha });
     if (sucursalFiltro) params.set("sucursalId", sucursalFiltro);
     const res = await fetch(`/api/operaciones?${params}`);
     if (res.ok) {
       setOperaciones(await res.json());
+    } else {
+      const data = await res.json();
+      setError(data.error || "Error al cargar operaciones");
     }
   }, [fecha, sucursalFiltro]);
 
@@ -70,6 +75,7 @@ export default function OperacionesClient({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError("");
     const res = await fetch("/api/operaciones", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -90,6 +96,9 @@ export default function OperacionesClient({
       setEditing(null);
       fetchOperaciones();
       router.refresh();
+    } else {
+      const data = await res.json();
+      setError(data.error || "Error al guardar operación");
     }
     setLoading(false);
   }
@@ -141,6 +150,8 @@ export default function OperacionesClient({
           {showForm ? "Cancelar" : "Nueva Operación"}
         </button>
       </div>
+
+      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-6 p-4 bg-white rounded-xl border space-y-3 max-w-lg">

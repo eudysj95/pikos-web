@@ -18,7 +18,7 @@ export default async function InventarioPage() {
       <InventarioClient
         sucursales={sucursales}
         isGerente={isGerente}
-        userSucursalId={session?.user?.sucursalId ?? ""}
+        userSucursalId={session?.user?.sucursalId ?? (sucursales[0]?.id ?? "")}
       />
     </div>
   );

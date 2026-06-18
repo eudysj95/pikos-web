@@ -10,10 +10,19 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const sucursalId = searchParams.get("sucursalId") || session.user.sucursalId;
+  const actual = searchParams.get("actual") === "true";
 
   const where = session.user.rol === "GERENTE"
     ? sucursalId ? { sucursalId } : {}
     : { sucursalId: session.user.sucursalId! };
+
+  if (actual) {
+    const ultima = await prisma.tasaCambio.findFirst({
+      where,
+      orderBy: { fecha: "desc" },
+    });
+    return NextResponse.json({ tasa: ultima?.tasa ?? null });
+  }
 
   const tasas = await prisma.tasaCambio.findMany({
     where,

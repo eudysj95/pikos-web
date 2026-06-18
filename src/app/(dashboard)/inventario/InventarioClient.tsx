@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useTasa } from "@/lib/currency-context";
+import { formatUSD } from "@/lib/format";
 
 type Producto = { id: string; nombre: string; precioUSD: number; precioBS: number; stockMinimo: number; categoria: string; stockActual: number };
 type Movimiento = { id: string; fecha: string; tipo: string; cantidad: number; stockAnterior: number; stockNuevo: number; observacion: string | null; producto: { nombre: string } };
@@ -21,6 +23,16 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
 
   const [prodForm, setProdForm] = useState({ nombre: "", precioUSD: "", precioBS: "", stockMinimo: "0", categoria: "OTROS" });
   const [movForm, setMovForm] = useState({ tipo: "ENTRADA", cantidad: "", observacion: "" });
+  const [error, setError] = useState("");
+  const tasa = useTasa();
+
+  function actualizarPrecioUSD(val: string) {
+    setProdForm((prev) => ({
+      ...prev,
+      precioUSD: val,
+      precioBS: val && tasa ? (parseFloat(val) * tasa).toFixed(2) : "",
+    }));
+  }
 
   const loadProductos = useCallback(async () => {
     const params = new URLSearchParams();
@@ -42,12 +54,14 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
   async function handleProdSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError("");
     const res = await globalThis.fetch("/api/productos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre: prodForm.nombre, precioUSD: parseFloat(prodForm.precioUSD) || 0, precioBS: parseFloat(prodForm.precioBS) || 0, stockMinimo: parseInt(prodForm.stockMinimo) || 0, categoria: prodForm.categoria }),
     });
     if (res.ok) { setShowProductForm(false); setProdForm({ nombre: "", precioUSD: "", precioBS: "", stockMinimo: "0", categoria: "OTROS" }); loadProductos(); router.refresh(); }
+    else { const data = await res.json(); setError(data.error || "Error al crear producto"); }
     setLoading(false);
   }
 
@@ -55,12 +69,14 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
     e.preventDefault();
     if (!showMovForm) return;
     setLoading(true);
+    setError("");
     const res = await globalThis.fetch("/api/movimientos-stock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productoId: showMovForm, tipo: movForm.tipo, cantidad: parseInt(movForm.cantidad) || 0, observacion: movForm.observacion || undefined, sucursalId: sucursalFiltro || undefined }),
     });
     if (res.ok) { setShowMovForm(null); setMovForm({ tipo: "ENTRADA", cantidad: "", observacion: "" }); loadProductos(); loadMovimientos(); router.refresh(); }
+    else { const data = await res.json(); setError(data.error || "Error al guardar movimiento"); }
     setLoading(false);
   }
 
@@ -77,6 +93,8 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
         </div>
       </div>
 
+      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+
       {tab === "productos" && (
         <div>
           <button onClick={() => { setShowProductForm(!showProductForm); setProdForm({ nombre: "", precioUSD: "", precioBS: "", stockMinimo: "0", categoria: "OTROS" }); }}
@@ -86,8 +104,8 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
             <form onSubmit={handleProdSubmit} className="mb-6 p-4 bg-white rounded-xl border space-y-3 max-w-md">
               <input value={prodForm.nombre} onChange={(e) => setProdForm({ ...prodForm, nombre: e.target.value })} placeholder="Nombre del producto" required className="w-full px-3 py-2 border rounded-lg text-sm" />
               <div className="grid grid-cols-2 gap-3">
-                <input type="number" step="0.01" value={prodForm.precioUSD} onChange={(e) => setProdForm({ ...prodForm, precioUSD: e.target.value })} placeholder="Precio USD" className="px-3 py-2 border rounded-lg text-sm" />
-                <input type="number" step="0.01" value={prodForm.precioBS} onChange={(e) => setProdForm({ ...prodForm, precioBS: e.target.value })} placeholder="Precio Bs." className="px-3 py-2 border rounded-lg text-sm" />
+                <input type="number" step="0.01" value={prodForm.precioUSD} onChange={(e) => actualizarPrecioUSD(e.target.value)} placeholder="Precio USD" className="px-3 py-2 border rounded-lg text-sm" />
+                <input type="number" step="0.01" value={prodForm.precioBS} placeholder="Precio Bs. (automático)" readOnly className="px-3 py-2 border rounded-lg text-sm bg-slate-50 text-slate-500" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <input type="number" value={prodForm.stockMinimo} onChange={(e) => setProdForm({ ...prodForm, stockMinimo: e.target.value })} placeholder="Stock mínimo" className="px-3 py-2 border rounded-lg text-sm" />
@@ -115,8 +133,8 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
                   <tr key={p.id} className={`border-t hover:bg-slate-50 ${p.stockActual <= p.stockMinimo ? "bg-red-50" : ""}`}>
                     <td className="p-3 font-medium">{p.nombre}</td>
                     <td className="p-3"><span className="px-2 py-0.5 rounded-full bg-slate-100 text-xs">{p.categoria}</span></td>
-                    <td className="p-3 text-right font-mono">${p.precioUSD.toFixed(2)}</td>
-                    <td className="p-3 text-right font-mono">Bs. {p.precioBS.toFixed(2)}</td>
+                    <td className="p-3 text-right font-mono">${p.precioUSD.toFixed(2)}<br /><span className="text-xs text-slate-400">{formatUSD(p.precioUSD, tasa)}</span></td>
+                    <td className="p-3 text-right font-mono">Bs. {(p.precioUSD * (tasa ?? 0)).toFixed(2)}</td>
                     <td className={`p-3 text-right font-mono font-bold ${p.stockActual <= p.stockMinimo ? "text-red-600" : ""}`}>{p.stockActual}</td>
                     <td className="p-3 text-right text-slate-500">{p.stockMinimo}</td>
                     <td className="p-3 text-center">
