@@ -53,6 +53,8 @@ export default function OperacionesClient({
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => { setFecha(hoyLocal()); }, []);
+
   const fetchOperaciones = useCallback(async () => {
     setError("");
     const params = new URLSearchParams({ fecha });

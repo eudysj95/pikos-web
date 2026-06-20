@@ -16,6 +16,8 @@ export default function EgresosClient({ categorias, sucursales, isGerente, userS
   const [form, setForm] = useState({ categoria: "", descripcion: "", monto: "" });
   const [showForm, setShowForm] = useState(false);
 
+  useEffect(() => { setFecha(hoyLocal()); }, []);
+
   const load = useCallback(async () => {
     const params = new URLSearchParams({ fecha });
     if (sucursalFiltro) params.set("sucursalId", sucursalFiltro);

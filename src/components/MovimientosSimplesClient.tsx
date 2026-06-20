@@ -20,6 +20,8 @@ export default function MovimientosSimplesClient({
   const [form, setForm] = useState({ descripcion: "", monto: "" });
   const [showForm, setShowForm] = useState(false);
 
+  useEffect(() => { setFecha(hoyLocal()); }, []);
+
   const load = useCallback(async () => {
     const params = new URLSearchParams({ fecha });
     if (sucursalFiltro) params.set("sucursalId", sucursalFiltro);

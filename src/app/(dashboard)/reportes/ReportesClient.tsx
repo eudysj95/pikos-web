@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTasa } from "@/lib/currency-context";
 import { formatUSD } from "@/lib/format";
 import { hoyLocal, haceLocal } from "@/lib/date";
@@ -33,6 +33,8 @@ export default function ReportesClient({ sucursales, isGerente, userSucursalId }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const tasa = useTasa();
+
+  useEffect(() => { setDesde(haceLocal(7)); setHasta(hoyLocal()); }, []);
 
   function setRango(d: string, h: string) { setDesde(d); setHasta(h); }
 

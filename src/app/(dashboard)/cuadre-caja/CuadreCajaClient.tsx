@@ -14,6 +14,8 @@ export default function CuadreCajaClient({ sucursales, isGerente, userSucursalId
   const [cuadre, setCuadre] = useState<Cuadre | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => { setFecha(hoyLocal()); }, []);
+
   const [form, setForm] = useState({ fondoInicial: "", ingresosTotal: "", salidasTotal: "", billetes200: "", billetes100: "", billetes50: "", billetes20: "", billetes10: "", billetes5: "", billetes2: "", billetes1: "", monedas: "" });
   const [totalConteo, setTotalConteo] = useState(0);
 

@@ -33,6 +33,8 @@ export default function TasaCambioClient({
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);
   const [error, setError] = useState("");
 
+  useEffect(() => { setFecha(hoyLocal()); }, []);
+
   const loadTasas = useCallback(async () => {
     const params = new URLSearchParams();
     if (sucursalFiltro) params.set("sucursalId", sucursalFiltro);

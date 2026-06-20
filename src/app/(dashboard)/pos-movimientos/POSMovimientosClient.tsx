@@ -36,6 +36,8 @@ export default function POSMovimientosClient({
   const [movimientos, setMovimientos] = useState<POSMov[]>([]);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => { setFecha(hoyLocal()); }, []);
+
   const [form, setForm] = useState({
     tipoPos: "",
     debito: "",
