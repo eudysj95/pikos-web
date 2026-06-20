@@ -10,7 +10,11 @@ export async function GET(req: Request) {
   const fechaParam = searchParams.get("fecha") || new Date().toISOString().split("T")[0];
   const sucursalId = searchParams.get("sucursalId") || session.user.sucursalId;
 
-  const where: any = { fecha: new Date(fechaParam) };
+  const diaInicio = new Date(fechaParam + "T00:00:00.000Z");
+  const diaFin = new Date(diaInicio);
+  diaFin.setDate(diaFin.getDate() + 1);
+
+  const where: any = { fecha: { gte: diaInicio, lt: diaFin } };
   if (session.user.rol !== "GERENTE") where.sucursalId = session.user.sucursalId!;
   else if (sucursalId) where.sucursalId = sucursalId;
 
