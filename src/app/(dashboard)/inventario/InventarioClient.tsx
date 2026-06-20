@@ -58,7 +58,7 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
     const res = await globalThis.fetch("/api/productos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: prodForm.nombre, precioUSD: parseFloat(prodForm.precioUSD) || 0, precioBS: parseFloat(prodForm.precioBS) || 0, stockMinimo: parseInt(prodForm.stockMinimo) || 0, categoria: prodForm.categoria }),
+      body: JSON.stringify({ nombre: prodForm.nombre, precioUSD: parseFloat(prodForm.precioUSD) || 0, precioBS: parseFloat(prodForm.precioBS) || 0, stockMinimo: parseInt(prodForm.stockMinimo) || 0, categoria: prodForm.categoria, sucursalId: sucursalFiltro || undefined }),
     });
     if (res.ok) { setShowProductForm(false); setProdForm({ nombre: "", precioUSD: "", precioBS: "", stockMinimo: "0", categoria: "OTROS" }); loadProductos(); router.refresh(); }
     else { const data = await res.json(); setError(data.error || "Error al crear producto"); }

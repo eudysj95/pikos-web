@@ -33,8 +33,9 @@ export async function POST(req: Request) {
   if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   try {
-    const { nombre, precioUSD, precioBS, stockMinimo, categoria } = await req.json();
-    const sucursalId = session.user.sucursalId!;
+    const { nombre, precioUSD, precioBS, stockMinimo, categoria, sucursalId: bodySucursalId } = await req.json();
+    const sucursalId = bodySucursalId || session.user.sucursalId;
+    if (!sucursalId) return NextResponse.json({ error: "sucursalId requerido" }, { status: 400 });
     const producto = await prisma.producto.create({
       data: { nombre, precioUSD: precioUSD || 0, precioBS: precioBS || 0, stockMinimo: stockMinimo || 0, categoria: categoria || "OTROS", sucursalId },
     });
