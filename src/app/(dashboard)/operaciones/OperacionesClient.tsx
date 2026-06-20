@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTasa } from "@/lib/currency-context";
 import { formatUSD } from "@/lib/format";
+import { hoyLocal } from "@/lib/date";
 
 type Operacion = {
   id: string;
@@ -33,7 +34,7 @@ export default function OperacionesClient({
   userSucursalId: string;
 }) {
   const router = useRouter();
-  const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
+  const [fecha, setFecha] = useState(hoyLocal());
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);
   const [operaciones, setOperaciones] = useState<Operacion[]>([]);
   const [loading, setLoading] = useState(false);

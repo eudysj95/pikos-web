@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { hoyLocal } from "@/lib/date";
 
 export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const fechaParam = searchParams.get("fecha") || new Date().toISOString().split("T")[0];
+  const fechaParam = searchParams.get("fecha") || hoyLocal();
   const sucursalId = searchParams.get("sucursalId") || session.user.sucursalId;
 
   const diaInicio = new Date(fechaParam + "T00:00:00.000Z");

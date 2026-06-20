@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { hoyLocal } from "@/lib/date";
 
 type Cuadre = { id: string; fecha: string; fondoInicial: number; ingresosTotal: number; salidasTotal: number; totalCaja: number };
 type Sucursal = { id: string; nombre: string };
 
 export default function CuadreCajaClient({ sucursales, isGerente, userSucursalId }: { sucursales: Sucursal[]; isGerente: boolean; userSucursalId: string }) {
   const router = useRouter();
-  const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
+  const [fecha, setFecha] = useState(hoyLocal());
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);
   const [cuadre, setCuadre] = useState<Cuadre | null>(null);
   const [loading, setLoading] = useState(false);

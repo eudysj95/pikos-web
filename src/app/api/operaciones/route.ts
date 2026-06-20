@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { hoyLocal } from "@/lib/date";
 
 export async function GET(req: Request) {
   const session = await auth();
@@ -9,7 +10,7 @@ export async function GET(req: Request) {
   }
 
   const { searchParams } = new URL(req.url);
-  const fechaStr = searchParams.get("fecha") || new Date().toISOString().split("T")[0];
+  const fechaStr = searchParams.get("fecha") || hoyLocal();
   const sucursalId = searchParams.get("sucursalId") || session.user.sucursalId;
 
   // Usar rango de fechas en vez de match exacto por diferencias de timezone

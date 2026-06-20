@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { hoyLocal } from "@/lib/date";
 
 type Egreso = { id: string; fecha: string; categoria: string; codigoCuenta: string | null; descripcion: string; monto: number };
 type Sucursal = { id: string; nombre: string };
 
 export default function EgresosClient({ categorias, sucursales, isGerente, userSucursalId }: { categorias: string[]; sucursales: Sucursal[]; isGerente: boolean; userSucursalId: string }) {
   const router = useRouter();
-  const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
+  const [fecha, setFecha] = useState(hoyLocal());
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);
   const [items, setItems] = useState<Egreso[]>([]);
   const [loading, setLoading] = useState(false);

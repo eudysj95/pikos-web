@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getTasaDelDia } from "@/lib/tasa";
+import { hoyLocal } from "@/lib/date";
 import DateRangeFilter from "@/components/DateRangeFilter";
 
 type Props = {
@@ -13,7 +14,7 @@ export default async function DashboardHome(props: Props) {
   const isGerente = session?.user?.rol === "GERENTE";
   const userSucursalId = session?.user?.sucursalId;
 
-  const hoy = new Date().toISOString().split("T")[0];
+  const hoy = hoyLocal();
   const desdeStr = searchParams.desde || hoy;
   const hastaStr = searchParams.hasta || hoy;
 

@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useTasa } from "@/lib/currency-context";
 import { formatUSD } from "@/lib/format";
+import { hoyLocal, haceLocal } from "@/lib/date";
 
 type Resumen = {
   sucursal: string;
@@ -21,9 +22,9 @@ type Resumen = {
 type Sucursal = { id: string; nombre: string };
 
 export default function ReportesClient({ sucursales, isGerente, userSucursalId }: { sucursales: Sucursal[]; isGerente: boolean; userSucursalId: string }) {
-  const hoy = new Date().toISOString().split("T")[0];
-  const semanaAtras = new Date(Date.now() - 7 * 864e5).toISOString().split("T")[0];
-  const mesAtras = new Date(Date.now() - 30 * 864e5).toISOString().split("T")[0];
+  const hoy = hoyLocal();
+  const semanaAtras = haceLocal(7);
+  const mesAtras = haceLocal(30);
 
   const [desde, setDesde] = useState(semanaAtras);
   const [hasta, setHasta] = useState(hoy);

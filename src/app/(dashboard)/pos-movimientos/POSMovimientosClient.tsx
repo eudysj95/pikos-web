@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { hoyLocal } from "@/lib/date";
 
 type POSMov = {
   id: string;
@@ -30,7 +31,7 @@ export default function POSMovimientosClient({
   userSucursalId: string;
 }) {
   const router = useRouter();
-  const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
+  const [fecha, setFecha] = useState(hoyLocal());
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);
   const [movimientos, setMovimientos] = useState<POSMov[]>([]);
   const [loading, setLoading] = useState(false);

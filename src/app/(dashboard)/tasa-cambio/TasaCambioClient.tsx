@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useRefreshTasa } from "@/lib/currency-context";
+import { hoyLocal } from "@/lib/date";
 
 type Tasa = {
   id: string;
@@ -26,7 +27,7 @@ export default function TasaCambioClient({
   const router = useRouter();
   const refreshTasa = useRefreshTasa();
   const [tasas, setTasas] = useState(initial);
-  const [fecha, setFecha] = useState(new Date().toISOString().split("T")[0]);
+  const [fecha, setFecha] = useState(hoyLocal());
   const [tasa, setTasa] = useState("");
   const [loading, setLoading] = useState(false);
   const [sucursalFiltro, setSucursalFiltro] = useState(userSucursalId);

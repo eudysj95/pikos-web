@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { hoyLocal } from "@/lib/date";
 
 export async function GET(req: Request) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const desde = new Date(searchParams.get("desde") || new Date().toISOString().split("T")[0]);
-  const hasta = new Date(searchParams.get("hasta") || new Date().toISOString().split("T")[0]);
+  const desde = new Date(searchParams.get("desde") || hoyLocal());
+  const hasta = new Date(searchParams.get("hasta") || hoyLocal());
   const sucursalId = searchParams.get("sucursalId") || session.user.sucursalId;
 
   const whereBase: any = { fecha: { gte: desde, lte: hasta } };
