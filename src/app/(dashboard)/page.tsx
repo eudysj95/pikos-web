@@ -42,8 +42,6 @@ export default async function DashboardHome(props: Props) {
   const totalSaldoBS = rangeBS.reduce((s, o) => s + o.saldo, 0);
   const ventasBSdeUSD = tasa ? totalVentasUSD * tasa : 0;
 
-  const labelFecha = desdeStr === hastaStr ? `(${desdeStr})` : `(${desdeStr} → ${hastaStr})`;
-
   return (
     <div>
       <div className="mb-8">
@@ -66,17 +64,17 @@ export default async function DashboardHome(props: Props) {
           <p className="text-3xl font-bold text-slate-800 mt-1">{sucursalesCount}</p>
         </div>
         <div className="bg-white rounded-xl border p-6">
-          <p className="text-sm text-slate-500">Ventas USD {labelFecha}</p>
+          <p className="text-sm text-slate-500">Ventas USD</p>
           <p className="text-3xl font-bold text-slate-800 mt-1">${totalVentasUSD.toFixed(2)}</p>
           {tasa && <p className="text-xs text-slate-400 mt-1">Bs. {ventasBSdeUSD.toFixed(2)} (tasa: {tasa})</p>}
         </div>
         <div className="bg-white rounded-xl border p-6">
-          <p className="text-sm text-slate-500">Saldo USD {labelFecha}</p>
+          <p className="text-sm text-slate-500">Saldo USD</p>
           <p className="text-3xl font-bold text-slate-800 mt-1">${totalSaldoUSD.toFixed(2)}</p>
           {tasa && <p className="text-xs text-slate-400 mt-1">Bs. {(totalSaldoUSD * tasa).toFixed(2)}</p>}
         </div>
         <div className="bg-white rounded-xl border p-6">
-          <p className="text-sm text-slate-500">Ventas Bs. {labelFecha}</p>
+          <p className="text-sm text-slate-500">Ventas Bs.</p>
           <p className="text-3xl font-bold text-slate-800 mt-1">Bs. {totalVentasBS.toFixed(2)}</p>
         </div>
       </div>
