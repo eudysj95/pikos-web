@@ -19,14 +19,14 @@ export async function GET(req: Request) {
   if (actual) {
     const ultima = await prisma.tasaCambio.findFirst({
       where,
-      orderBy: { fecha: "desc" },
+      orderBy: { createdAt: "desc" },
     });
     return NextResponse.json({ tasa: ultima?.tasa ?? null });
   }
 
   const tasas = await prisma.tasaCambio.findMany({
     where,
-    orderBy: { fecha: "desc" },
+    orderBy: { createdAt: "desc" },
     take: 30,
   });
   return NextResponse.json(tasas);

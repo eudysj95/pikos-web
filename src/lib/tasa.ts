@@ -6,7 +6,7 @@ export async function getTasaDelDia(sucursalId?: string): Promise<number | null>
 
   const tasa = await prisma.tasaCambio.findFirst({
     where,
-    orderBy: { fecha: "desc" },
+    orderBy: { createdAt: "desc" },
   });
 
   return tasa?.tasa ?? null;
