@@ -53,8 +53,9 @@ export default function InventarioClient({ sucursales, isGerente, userSucursalId
 
   async function handleProdSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    if (!sucursalFiltro) { setError(isGerente ? "Seleccioná una sucursal específica antes de crear un producto" : "Error de sesión: no se encontró la sucursal. Intentá salir y volver a iniciar sesión."); return; }
+    setLoading(true);
     const res = await globalThis.fetch("/api/productos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
