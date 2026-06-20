@@ -43,16 +43,19 @@ export async function POST(req: Request) {
     const sucursalId = bodySucursalId || session.user.sucursalId;
     if (!sucursalId) return NextResponse.json({ error: "No hay sucursal disponible" }, { status: 400 });
 
+    // Normalizar a medianoche local para que coincida con el formato del seed
+    const fechaLocal = new Date(fecha + "T00:00:00");
+
     const tasaCambio = await prisma.tasaCambio.upsert({
       where: {
         fecha_sucursalId: {
-          fecha: new Date(fecha),
+          fecha: fechaLocal,
           sucursalId,
         },
       },
       update: { tasa },
       create: {
-        fecha: new Date(fecha),
+        fecha: fechaLocal,
         tasa,
         sucursalId,
       },
