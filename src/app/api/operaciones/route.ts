@@ -9,10 +9,15 @@ export async function GET(req: Request) {
   }
 
   const { searchParams } = new URL(req.url);
-  const fechaParam = searchParams.get("fecha") || new Date().toISOString().split("T")[0];
+  const fechaStr = searchParams.get("fecha") || new Date().toISOString().split("T")[0];
   const sucursalId = searchParams.get("sucursalId") || session.user.sucursalId;
 
-  const where: any = { fecha: new Date(fechaParam) };
+  // Usar rango de fechas en vez de match exacto por diferencias de timezone
+  const diaInicio = new Date(fechaStr + "T00:00:00.000Z");
+  const diaFin = new Date(diaInicio);
+  diaFin.setDate(diaFin.getDate() + 1);
+
+  const where: any = { fecha: { gte: diaInicio, lt: diaFin } };
   if (session.user.rol !== "GERENTE") {
     where.sucursalId = session.user.sucursalId!;
   } else if (sucursalId) {

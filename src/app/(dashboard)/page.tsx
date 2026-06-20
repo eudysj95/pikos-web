@@ -9,11 +9,16 @@ export default async function DashboardHome() {
 
   const where = isGerente ? {} : { sucursalId: userSucursalId ?? "" };
 
+  const diaInicio = new Date();
+  diaInicio.setHours(0, 0, 0, 0);
+  const diaFin = new Date(diaInicio);
+  diaFin.setDate(diaFin.getDate() + 1);
+
   const [sucursalesCount, operacionesCount, todayOps, tasa] = await Promise.all([
     prisma.sucursal.count({ where: isGerente ? {} : { id: userSucursalId ?? "" } }),
     prisma.operacionDiaria.count({ where }),
     prisma.operacionDiaria.findMany({
-      where: { ...where, fecha: new Date() },
+      where: { ...where, fecha: { gte: diaInicio, lt: diaFin } },
       take: 10,
       orderBy: { createdAt: "desc" },
     }),
