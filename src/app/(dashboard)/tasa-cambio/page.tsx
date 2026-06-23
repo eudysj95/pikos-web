@@ -18,10 +18,17 @@ export default async function TasaCambioPage() {
         where: { sucursalId: defaultSucursalId },
         orderBy: { fecha: "desc" },
         take: 30,
+        include: { sucursal: { select: { nombre: true } } },
       })
     : [];
 
-  const tasas = raw.map((t) => ({ id: t.id, fecha: t.fecha.toISOString(), tasa: t.tasa }));
+  const tasas = raw.map((t) => ({
+    id: t.id,
+    fecha: t.fecha.toISOString(),
+    tasa: t.tasa,
+    origen: t.origen,
+    sucursalNombre: t.sucursal?.nombre ?? null,
+  }));
 
   return (
     <div>

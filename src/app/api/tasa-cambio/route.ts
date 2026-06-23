@@ -28,6 +28,7 @@ export async function GET(req: Request) {
     where,
     orderBy: { createdAt: "desc" },
     take: 30,
+    include: { sucursal: { select: { nombre: true } } },
   });
   return NextResponse.json(tasas);
 }
@@ -53,11 +54,12 @@ export async function POST(req: Request) {
           sucursalId,
         },
       },
-      update: { tasa },
+      update: { tasa, origen: "MANUAL" },
       create: {
         fecha: fechaLocal,
         tasa,
         sucursalId,
+        origen: "MANUAL",
       },
     });
     return NextResponse.json(tasaCambio);

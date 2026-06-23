@@ -1,0 +1,6 @@
+[functions]
+directory = "netlify/functions"
+
+[[schedule]]
+function = "fetch-bcv-rate"
+schedule = "@daily"

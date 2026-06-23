@@ -62,13 +62,19 @@ model PlanCuenta {
   @@map("plan_cuentas")
 }
 
+enum OrigenTasa {
+  MANUAL
+  BCV_AUTO
+}
+
 model TasaCambio {
-  id        String   @id @default(cuid())
+  id        String      @id @default(cuid())
   fecha     DateTime
   tasa      Float
-  sucursalId String  @map("sucursal_id")
-  sucursal  Sucursal @relation(fields: [sucursalId], references: [id])
-  createdAt DateTime @default(now()) @map("created_at")
+  origen    OrigenTasa  @default(MANUAL)
+  sucursalId String     @map("sucursal_id")
+  sucursal  Sucursal    @relation(fields: [sucursalId], references: [id])
+  createdAt DateTime    @default(now()) @map("created_at")
 
   @@unique([fecha, sucursalId])
   @@map("tasas_cambio")

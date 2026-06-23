@@ -9,6 +9,8 @@ type Tasa = {
   id: string;
   fecha: string;
   tasa: number;
+  origen: "MANUAL" | "BCV_AUTO";
+  sucursalNombre: string | null;
 };
 
 type Sucursal = { id: string; nombre: string };
@@ -39,7 +41,18 @@ export default function TasaCambioClient({
     const params = new URLSearchParams();
     if (sucursalFiltro) params.set("sucursalId", sucursalFiltro);
     const res = await fetch(`/api/tasa-cambio?${params}`);
-    if (res.ok) setTasas(await res.json());
+    if (res.ok) {
+      const data: any[] = await res.json();
+      setTasas(
+        data.map((t) => ({
+          id: t.id,
+          fecha: t.fecha,
+          tasa: t.tasa,
+          origen: t.origen,
+          sucursalNombre: t.sucursal?.nombre ?? null,
+        })),
+      );
+    }
   }, [sucursalFiltro]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -117,6 +130,8 @@ export default function TasaCambioClient({
             <tr>
               <th className="text-left p-3 font-medium text-slate-600">Fecha</th>
               <th className="text-left p-3 font-medium text-slate-600">Tasa USD/Bs.</th>
+              <th className="text-left p-3 font-medium text-slate-600">Origen</th>
+              <th className="text-left p-3 font-medium text-slate-600">Sucursal</th>
             </tr>
           </thead>
           <tbody>
@@ -128,11 +143,25 @@ export default function TasaCambioClient({
                 <td className="p-3 font-mono font-medium">
                   Bs. {t.tasa.toFixed(2)}
                 </td>
+                <td className="p-3">
+                  {t.origen === "BCV_AUTO" ? (
+                    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      BCV
+                    </span>
+                  ) : (
+                    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                      Manual
+                    </span>
+                  )}
+                </td>
+                <td className="p-3 text-slate-600">
+                  {t.sucursalNombre ?? "—"}
+                </td>
               </tr>
             ))}
             {tasas.length === 0 && (
               <tr>
-                <td colSpan={2} className="text-center text-slate-400 py-8">
+                <td colSpan={4} className="text-center text-slate-400 py-8">
                   No hay tasas registradas
                 </td>
               </tr>
