@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PIKOS Web — Sistema de Gestión Multi-Sucursal
 
-## Getting Started
+Aplicación web para la gestión de centros de apuestas con soporte multi-sucursal, moneda dual (USD/Bs.) y control de inventario.
 
-First, run the development server:
+**Stack**: Next.js 16 + TypeScript + Tailwind CSS v4 + Prisma + PostgreSQL (Supabase) + NextAuth v5
+
+## Requisitos
+
+- Node.js 20+
+- npm/pnpm
+- Una base de datos PostgreSQL (Supabase recomendado)
+
+## Configuración
+
+1. Clonar el repositorio e instalar dependencias:
+
+```bash
+npm install
+# o
+pnpm install
+```
+
+2. Configurar variables de entorno — copiar los valores correctos en `.env`:
+
+```env
+# Base de datos — PostgreSQL en Supabase
+# Runtime: pooler transacción (IPv4) en puerto 6543
+DATABASE_URL="postgresql://postgres.PROJECT_REF:PASSWORD@REGION.pooler.supabase.com:6543/postgres"
+
+# Migraciones: pooler sesión (IPv4) en puerto 5432
+DIRECT_URL="postgresql://postgres.PROJECT_REF:PASSWORD@REGION.pooler.supabase.com:5432/postgres"
+
+# NextAuth v5 — generar con: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+AUTH_SECRET="tu-secreto-aqui"
+
+# URL base (para desarrollo)
+AUTH_URL="http://localhost:3000"
+```
+
+3. Sincronizar esquema y poblar la base de datos:
+
+```bash
+npx prisma db push    # Sincroniza el schema
+npx prisma db seed    # Carga datos de prueba
+```
+
+4. Iniciar el servidor de desarrollo:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Abrir http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Datos de prueba
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Email | Contraseña | Rol |
+|---|---|---|
+| admin@admin.com | admin123 | GERENTE |
+| carlos@pikos.com | admin123 | ENCARGADO |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estructura del proyecto
 
-## Learn More
+```
+src/
+├── app/
+│   ├── (auth)/          # Login, registro
+│   ├── (dashboard)/     # Páginas protegidas
+│   │   ├── cuadre-caja/
+│   │   ├── egresos/
+│   │   ├── ingresos/
+│   │   ├── inventario/
+│   │   ├── operaciones/
+│   │   ├── plan-cuentas/
+│   │   ├── pos-movimientos/
+│   │   ├── prestamos/
+│   │   ├── reportes/
+│   │   ├── sucursales/
+│   │   ├── tasa-cambio/
+│   │   └── usuarios/
+│   └── api/             # REST endpoints
+├── components/          # Componentes reutilizables
+├── lib/                 # Utilidades, auth, prisma
+├── middleware.ts        # Protección de rutas
+└── types/               # Tipos TypeScript
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Funcionalidades
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Autenticación**: Email/contraseña con NextAuth v5, JWT, RBAC (GERENTE/ENCARGADO)
+- **Multi-sucursal**: Cada sucursal con sus propios datos; gerente ve todo consolidado
+- **Moneda dual**: USD/Bs. con tasa de cambio diaria configurable (manual o BCV automático)
+- **Operaciones diarias**: 14 tipos de juegos con ventas, pagos, reintegros y comisiones
+- **POS**: Registro de movimientos de punto de venta con descuentos automáticos
+- **Inventario**: Control de stock con precios en USD y Bs. dinámico
+- **Cuadre de caja**: Cierre diario con detección de descuadres
+- **Reportes**: Dashboard con filtros por fecha y sucursal
+- **BCV automático**: Función serverless que obtiene la tasa del BCV diariamente
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Despliegue
 
-## Deploy on Vercel
+El proyecto está configurado para desplegarse en **Netlify** (auto-deploy desde GitHub).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Variables de entorno en Netlify
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Configurar como **secretos** (production):
+
+| Variable | Descripción |
+|---|---|
+| `DATABASE_URL` | Pooler transacción (puerto 6543) |
+| `DIRECT_URL` | Pooler sesión (puerto 5432) |
+| `AUTH_SECRET` | Secreto para JWT de NextAuth |
+| `AUTH_URL` | URL del sitio en producción |
+
+## Licencia
+
+Uso interno.
