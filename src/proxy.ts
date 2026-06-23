@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 const AUTH_COOKIE_SECURE = "__Secure-authjs.session-token";
 const AUTH_COOKIE = "authjs.session-token";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const hasSession =
     request.cookies.has(AUTH_COOKIE_SECURE) ||
     request.cookies.has(AUTH_COOKIE);
@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/(dashboard)/:path*",
+    "/",
     "/operaciones/:path*",
     "/cuadre-caja/:path*",
     "/egresos/:path*",
